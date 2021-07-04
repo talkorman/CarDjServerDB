@@ -13,7 +13,17 @@ router.get("/:songDetail", (req, res, next) => {
         avoidMultipleReq = '';
     }, 1000);
 }
-    if(avoidMultipleReq == songs) return;
+    if(avoidMultipleReq != songs){
+        res.writeHead(200,{'Content-Type': 'application/json'});
+        res.write(JSON.stringify({items: [{
+            videoId: "lkjlkjj",
+            title: "multiple result",
+            description: " ",
+            photoUrl: "kjhkjhkjhkjh"
+        }]}));
+        res.end();
+       
+    } 
     avoidMultipleReq = songs;
     const reg = /\+/g;
     const songData = songs.replace(reg, ' ');
