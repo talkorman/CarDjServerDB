@@ -4,14 +4,15 @@ const Post = require('../models/postSong');
 const bodyParser = require('body-parser');
 
 let currentSearchWord = '';
+let searchWord = '';
+const reqTime = setInterval(()=>{
+    currentSearchWord = "";
+    }, 10000);
 
 router.get("/:songDetail", (req, res, next) => {   
     let songsList = new Set();
-    const searchWord = req.params.songDetail;    
-    const reqTime = setInterval(()=>{
-    if(searchWord != currentSearchWord)
-    currentSearchWord = "";
-    }, 10000);
+    searchWord = req.params.songDetail;    
+    
     if(
         searchWord != currentSearchWord
         && searchWord != "gaocc" 
