@@ -5,8 +5,9 @@ const bodyParser = require('body-parser');
 
 router.get("/:songDetail", (req, res, next) => {
     let songsList = new Set();
-    const songs = String(req.params.songDetail);
-    const songData = songs.replaceAll('+', ' ');
+    const songs = req.params.songDetail;
+    const reg = /\+/g;
+    const songData = songs.replace(reg, ' ');
     console.log(songData);
     Post.find({title: {$regex : songData, $options: 'i'}}, {_id: 0}).then(results => {
        for(let i = 0; i < results.length; i++){
