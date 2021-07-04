@@ -3,9 +3,20 @@ const router = express.Router();
 const Post = require('../models/postSong');
 const bodyParser = require('body-parser');
 
+let avoidMultipleReq = '';
+
 router.get("/:songDetail", (req, res, next) => {
+    setTimeout(()=>{
+        if(avoidMultipleReq != '')
+        avoidMultipleReq = ''
+    }, 200);
     let songsList = new Set();
     const songs = req.params.songDetail;
+    if(avoidMultipleReq == songs){
+        avoidMultipleReq = '';
+        return;
+    }
+    avoidMultipleReq = songs;
     const reg = /\+/g;
     const songData = songs.replace(reg, ' ');
     console.log(songData);
