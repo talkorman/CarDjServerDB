@@ -9,7 +9,7 @@ router.get("/:songDetail", (req, res, next) => {
     const reg = /\+/g;
     const songData = songs.replace(reg, ' ');
     console.log(songData);
-    Post.find({title: {$regex : songData, $options: 'i'}}, {_id: 0}).then(results => {
+    Post.find({title: {$regex : songData, $options: 'i'}}, {_id: 0, __v: 0}).then(results => {
        for(let i = 0; i < results.length; i++){
            if(i < 11)
            songsList.add(results[i]);
