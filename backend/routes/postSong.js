@@ -16,7 +16,7 @@ router.get("/:songDetail", (req, res, next) => {
        }
        console.log(songsList);
        res.json({
-           item: songsList
+           items: songsList
        })
     })
 })
