@@ -11,7 +11,7 @@ router.get("/:songDetail", (req, res, next) => {
     if(songs != avoidMultipleReq){
     setTimeout(()=>{
         avoidMultipleReq = '';
-    }, 5000);
+    }, 1000);
 }
     if(avoidMultipleReq == songs) return;
     avoidMultipleReq = songs;
