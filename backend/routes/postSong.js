@@ -14,10 +14,11 @@ router.get("/:songDetail", (req, res, next) => {
            if(i < 11)
            songsList.add(results[i]);
        }
-       console.log(songsList);
-       res.json({
-           items: songsList
-       })
+       const songs = Array.from(songsList);
+       console.log(songs);
+       res.writeHead(200,{'Content-Type': 'application/json'});
+res.write(JSON.stringify({items: songs}));
+res.end();
     })
 })
     module.exports = router;
