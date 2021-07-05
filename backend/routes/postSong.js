@@ -29,15 +29,23 @@ router.get("/:songDetail", (req, res, next) => {
            if(i < 11)
            songsList.add(results[i]);
        }
-       const songs = Array.from(songsList);
+       const songs1 = Array.from(songsList);
+       const songs2 = removeDuplicates(songs1, 'videoId');
+   
        //console.log(songs);
        setTimeout(() => {
             res.writeHead(200,{'Content-Type': 'application/json'});
-res.write(JSON.stringify({items: songs}));
+res.write(JSON.stringify({items: songs2}));
 res.end();
        }, 2000)
       
     })
 }
 })
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) == pos;
+        })
+    }
+
     module.exports = router;
