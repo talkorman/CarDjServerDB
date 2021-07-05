@@ -31,9 +31,12 @@ router.get("/:songDetail", (req, res, next) => {
        }
        const songs = Array.from(songsList);
        //console.log(songs);
-       res.writeHead(200,{'Content-Type': 'application/json'});
+       setTimeout(() => {
+            res.writeHead(200,{'Content-Type': 'application/json'});
 res.write(JSON.stringify({items: songs}));
 res.end();
+       }, 2000)
+      
     })
 }
 })
