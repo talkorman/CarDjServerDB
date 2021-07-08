@@ -61,7 +61,7 @@ async function getFromHome(searchWord){
             data += chunk;
         });
         res.on('end', async () => {
-        results = await JSON.parse(data).items;
+        const results = await JSON.parse(data).items;
         await console.log('results from home: ' + results);
         await postExtraOnDB(results);
         return results;
