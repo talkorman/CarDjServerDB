@@ -4,8 +4,12 @@ const Post = require('../models/postSong');
 const bodyParser = require('body-parser');
 const https = require('https');
 
+
+
 let currentSearchWord = '';
 let searchWord = '';
+let numOfPosts = 0;
+
 const reqTime = setInterval(()=>{
     currentSearchWord = "";
     }, 10000);
@@ -24,6 +28,7 @@ router.get("/:songDetail", (req, res, next) => {
     currentSearchWord = searchWord;
     const reg = /\+/g;
     const songData = searchWord.replace(reg, ' ');
+    
     //console.log(songData);
     Post.find({title: {$regex : songData, $options: 'i'}}, {_id: 0, __v: 0})
     .then(results => {
@@ -32,40 +37,64 @@ router.get("/:songDetail", (req, res, next) => {
        }
        const songs1 = Array.from(songsList);
        const songs2 = removeDuplicates(songs1, 'videoId');
+       console.log('songs from DB: ' + songs2);
+       afterDB(songs2, songData);
     })
-    .then(results => {
-        if(results.length < 10){
-            https.get('https://cardjserver.herokuapp.com', res =>{
-                let data = '';
-                res.on('data', chunk => {
-                    data += chunk
-                });
-                res.on('end', () => {
-                    const extraSongs = JSON.parse(data).items;
-                    for(let i = 0; i < extraSongs; i++){
-                        let song = extraSongs[i];
-                        const post = new Post({
-                        videoId: song.videoId,
-                        title: song.title,
-                        description: song.description,
-                        photoUrl: song.photoUrl
-                 });
-                    post.save().then(result => {
-                    })
-                    }
-                    songs2.concat(extraSongs);
-                    responseSongs();
-                    return;
-                })
-            })
-        }
-        responseSongs();
-    })
+   
+
        //console.log(songs);
- function responseSongs(){
+async function afterDB(songs, searchWord){
+    if(songs.length < 10){
+        console.log('not enough results from DB');
+        const extraSongs = await getFromHome(searchWord);
+        const totalSongs = await songs.concat(extraSongs);
+        await console.log('total songs: ' + totalSongs.length);
+        await responseSongs(totalSongs);
+    }
+}
+async function getFromHome(searchWord){
+    console.log('getting from home');
+    https.get('https://cardjserver.herokuapp.com/' + searchWord, res => {
+        console.log('requesting from home');
+        let data = '';
+        res.on('data', chunk => {
+            data += chunk;
+        });
+        res.on('end', async () => {
+        results = await JSON.parse(data).items;
+        await console.log('results from home: ' + results);
+        await postExtraOnDB(results);
+        return results;
+    });
+    res.on('error', err => {
+        console.log('fetch from home error');
+        return [];
+    });
+    })
+    
+async function postExtraOnDB(songs){
+    for(let i = 0; i < songs.length; i++){
+        if(i > 10) break;
+        let song = songs[i];
+        const post = new Post({
+            videoId: song.videoId,
+            title: song.title,
+            description: ' ',
+            photoUrl: song.photoUrl
+    });
+    await post.save().then(result=>{   
+        numOfPosts++; 
+    })
+    }
+    console.log(songs[0]);
+     console.log("saved " + numOfPosts + " songs");
+}
+    
+}
+ function responseSongs(songs){
        setTimeout(() => {
             res.writeHead(200,{'Content-Type': 'application/json'});
-res.write(JSON.stringify({items: songs2}));
+res.write(JSON.stringify({items: songs}));
 res.end();
        }, 2000)
     }
