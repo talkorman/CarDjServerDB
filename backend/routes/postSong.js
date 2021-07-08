@@ -8,7 +8,6 @@ const https = require('https');
 
 let currentSearchWord = '';
 let searchWord = '';
-let numOfPosts = 0;
 
 const reqTime = setInterval(()=>{
     currentSearchWord = "";
@@ -44,15 +43,18 @@ router.get("/:songDetail", (req, res, next) => {
 
        //console.log(songs);
 async function afterDB(songs, searchWord){
-    if(songs.length < 10){
+    let extraSongs = [];
+    if(songs.length < 5){
         console.log('not enough results from DB');
-        const extraSongs = await getFromHome(searchWord);
+        extraSongs = await getFromHome(searchWord);
+        return;
+    }
         const totalSongs = await songs.concat(extraSongs);
         await console.log('total songs: ' + totalSongs.length);
         await responseSongs(totalSongs);
-    }
 }
-async function getFromHome(searchWord){
+
+function getFromHome(searchWord){
     console.log('getting from home');
     https.get('https://cardjserver.herokuapp.com/' + searchWord, res => {
         console.log('requesting from home');
@@ -64,6 +66,7 @@ async function getFromHome(searchWord){
         const results = await JSON.parse(data).items;
         await console.log('results from home: ' + results);
         await postExtraOnDB(results);
+        await responseSongs(results);
         return results;
     });
     res.on('error', err => {
@@ -73,6 +76,7 @@ async function getFromHome(searchWord){
     })
     
 async function postExtraOnDB(songs){
+    let numOfPosts = 0;
     for(let i = 0; i < songs.length; i++){
         if(i > 10) break;
         let song = songs[i];
